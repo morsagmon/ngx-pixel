@@ -99,3 +99,8 @@ export type PixelEventName = 'AddPaymentInfo' |
 'SubmitApplication' |
 'Subscribe' |
 'ViewContent';
+
+
+export type PixelEventID = {
+  eventID: string;
+}

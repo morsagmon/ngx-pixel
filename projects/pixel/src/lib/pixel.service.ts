@@ -1,4 +1,4 @@
-import { PixelEventName, PixelConfiguration, PixelEventProperties } from './pixel.models';
+import { PixelEventName, PixelConfiguration, PixelEventProperties, PixelEventID } from './pixel.models';
 import { Inject, Injectable, Optional, PLATFORM_ID, Renderer2, RendererFactory2 } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
@@ -69,7 +69,8 @@ export class PixelService {
    */
   track(
     eventName: PixelEventName,
-    properties?: PixelEventProperties
+    properties?: PixelEventProperties,
+    eventID?: PixelEventID
   ): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
@@ -81,9 +82,17 @@ export class PixelService {
     }
 
     if (properties) {
-      fbq('track', eventName, properties);
+      if (eventID) {
+          fbq('track', eventName, properties, eventID);
+      } else {
+          fbq('track', eventName, properties);
+      }
     } else {
-      fbq('track', eventName);
+        if (eventID) {
+            fbq('track', eventName, null, eventID);
+        } else {
+            fbq('track', eventName);
+        }
     }
 
   }
@@ -95,7 +104,7 @@ export class PixelService {
    * @param eventName The name of the event that is being tracked
    * @param properties Optional properties of the event
    */
-  trackCustom(eventName: string, properties?: object): void {
+  trackCustom(eventName: string, properties?: object, eventID?: PixelEventID): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
@@ -106,9 +115,17 @@ export class PixelService {
     }
 
     if (properties) {
-      fbq('trackCustom', eventName, properties);
+      if (eventID) {
+          fbq('trackCustom', eventName, properties, eventID);
+      } else {
+          fbq('trackCustom', eventName, properties);
+      }
     } else {
-      fbq('trackCustom', eventName);
+        if (eventID) {
+            fbq('trackCustom', eventName, null, eventID);
+        } else {
+            fbq('trackCustom', eventName);
+        }
     }
   }
 

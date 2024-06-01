@@ -1,7 +1,6 @@
-![ngx-pixel header](https://storage.googleapis.com/nielskersic/static-images/github/ngx-pixel%20header-min.png)
 
 <p align="center">
-An Angular library to simplify tracking using a Facebook Pixel.
+An Angular library to simplify tracking using a Facebook Pixel with support for the eventID argument.
 </p>
 
 ---
@@ -16,18 +15,22 @@ Using a Facebook Pixel is fairly simple. You add the script to the `head` sectio
 
 By default, ***ngx-pixel*** is **disabled** to make it easier to comply with GDPR and other privacy regulations. The Facebook script is only loaded after ***ngx-pixel*** is enabled, which also helps cut down the initial load time of your application. Read [here](#enabling) how to *enable* and *disable* ***ngx-pixel***.
 
+[Mor Sagmon]
+This modified version supports Facebook's eventID, which is a possible fourth argument passed to track and trackCustom, fortifying a strong deduplication with the same event as reported from your server (using ConversionsAPI).
+
 ---
 
 # Usage
 Using ***ngx-pixel*** is very simple.
 
 ## 1. Installing the NPM package
-You can install the NPM package with `npm install ngx-pixel`
+You can install the NPM package with `npm install ngx-pixel-eventid`
 
-## 2. Add it to your app module
+## 2. Add it to your app module / config
+### If you are using NgModule
 Add the library to your app's module, usually `app.module.ts`. Make sure you use the `forRoot()` method. Within this method, add your [Facebook Pixel ID](https://www.facebook.com/business/help/952192354843755). 
 ```typescript
-import { PixelModule } from 'ngx-pixel';
+import { PixelModule } from 'ngx-pixel-eventid';
 
 @NgModule({
   declarations: [
@@ -42,10 +45,26 @@ import { PixelModule } from 'ngx-pixel';
 })
 export class AppModule { }
 ```
+
+### For standalone Angular projects
+Add the library as an imported provider into the providers array in the `app.config.ts` file:
+```typescript
+import { PixelModule } from 'ngx-pixel-eventid';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    importProvidersFrom(
+      PixelModule.forRoot({ enabled: true, pixelId: 'YOUR_PIXEL_ID' }) 
+    ),    
+  ]
+};
+
+```
+
 **NOTE:** By default, the library does not start tracking immediately. In most cases this requires user consent to comply with GDPR and other privacy regulations. If you would still like start tracking as soon as your app module loads, include the `enabled: true` parameter in when you call `forRoot()`.
 
-## 3. Add it to your components
-In any component where you would like to track certain events, you can import the ***ngx-pixel service*** with `import { PixelService } from 'ngx-pixel';`
+## 3. Add it to your components/service
+In any component where you would like to track certain events, you can import the ***ngx-pixel service*** with `import { PixelService } from 'ngx-pixel-eventid';`
 Then you can inject the service into your component as follows:
 ```TypeScript
 export class HomeComponent {
@@ -64,12 +83,14 @@ There are two groups of events that you can track, namely *Standard events*  and
 **Standard events** are common events that Facebook has created. You can find the full list [here](https://developers.facebook.com/docs/facebook-pixel/reference). You can track a Standard event like this:
 ![Track Standard events using ngx-pixel](https://storage.googleapis.com/nielskersic/static-images/github/ngx-pixel-track-large.gif)
 
-The first argument is the type of event as defined by Facebook. The optional second argument can be used to pass more information about the event. E.g.: 
+The first argument is the type of event as defined by Facebook. The optional second argument can be used to pass more information about the event. The optional third argument is the eventID you generated that you also send with the ConversionAPI request call for this event. E.g.: 
 ```typescript
 this.pixel.track('InitiateCheckout', {
   content_ids: ['ABC123', 'XYZ456'],  // Item SKUs
   value: 100,                         // Value of all items
   currency: 'USD'                     // Currency of the value
+}, {
+  eventID: 'OMG987'
 });
 ```
 
@@ -79,10 +100,12 @@ Tracking **Custom events** works very similar to tracking Standard events. The o
 this.pixel.trackCustom('MyCustomEvent');
 ```
 
-And just like with Standard events, you can add more properties. This is recommended, since this enables you to create even more specific audiences within Facebook Business Manager. Which properties you add is completely up to you. Here is an example:
+And just like with Standard events, you can add more properties and the eventID. Adding properties is recommended, since this enables you to create even more specific audiences within Facebook Business Manager. Which properties you add is completely up to you. Here is an example:
 ```TypeScript
 this.pixel.trackCustom('MyCustomEvent', {
   platform: 'limewire'
+}, {
+  eventID: 'OMG987'
 })
 ```
 
@@ -144,18 +167,13 @@ export class HomeComponent {
 ---
 
 # Important notes
-- Backwards compatibility is not guaranteed. ***ngx-pixel*** was developed using Angular 11, which uses the Ivy compiler instead of the older View Engine compiler. If your project uses Angular 8 or earlier, or if you've decided to keep using View Engine with newer Angular versions, ***ngx-pixel*** might not be compatible, although I have not yet tested this to confirm.
-
----
-
-# What's next?
-- [X] Adding Angular Universal SSR support.
-- [ ] Adding tests.
-- [ ] Removing all Facebook scripts on removal, not just the initial script.
+- Backwards compatibility is not guaranteed. ***ngx-pixel-eventid*** was developed using Angular 17, which uses the Ivy compiler instead of the older View Engine compiler. If your project uses Angular 8 or earlier, or if you've decided to keep using View Engine with newer Angular versions, ***ngx-pixel-eventid*** might not be compatible, although I have not yet tested this to confirm.
 
 ---
 
 Created with ❤️ by Niels Kersic, [niels.codes](https://niels.codes).
+Updated to Angular 17 by Debabrata Acharya, (https://github.com/onclave).
+Updated to support Facebook eventID by Mor Sagmon (https://github.com/morsagmon).
 
 
 
